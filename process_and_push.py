@@ -5,13 +5,13 @@ from github import Github
 from collections import defaultdict
 
 # **🔗 目标数据 URL**
-URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"  # 检查 URL 里的 %20 是否正确
+URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"  # 确保 URL 正确
 
 # **📥 下载数据**
 try:
     response = requests.get(URL, timeout=10)
     response.raise_for_status()
-    print(f"📥 下载的数据内容:\n{response.text[:10000]}...")  # 只打印前200个字符，防止太长
+    print(f"📥 下载的数据内容:\n{response.text[:200]}...")  # 只打印前200个字符，防止太长
 except requests.exceptions.RequestException as e:
     print(f"❌ 下载数据失败: {e}")
     exit(1)
@@ -31,16 +31,22 @@ for line in lines:
         formatted_line = f"{ip}:{port}#{country}"
         country_dict[country].append(formatted_line)
 
+# **打印解析出的国家 IP 数据**
+print(f"🌍 解析出的国家数据: {dict(country_dict)}")
+
 # **🎯 每个国家随机选 N 个 IP**
 N = 5
 output_lines = []
 for country, ip_list in country_dict.items():
-    selected_ips = random.sample(ip_list, min(N, len(ip_list)))
+    if not ip_list:
+        print(f"⚠️ {country} 没有可用的 IP，跳过")
+        continue
+    selected_ips = random.sample(ip_list, min(N, len(ip_list)))  # 防止 IP 不足 5 个时报错
     output_lines.extend(selected_ips)
 
-# **⚠️ 检查 output_lines 是否为空**
+# **⚠️ 解析数据检查**
 if not output_lines:
-    print("⚠️ 解析结果为空，不执行 GitHub 更新")
+    print("⚠️ 解析结果为空，检查数据格式")
     exit(1)
 
 # **📂 保存到本地**
