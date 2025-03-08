@@ -12,7 +12,7 @@ try:
     response = requests.get(URL, timeout=10)
     response.raise_for_status()
     data = response.text.strip()
-    print(f"📥 下载的数据内容（完整）：\n{data}")
+    print(f"📥 下载的数据内容（前 20 行）：\n" + "\n".join(data.split("\n")[:20]))
 except requests.exceptions.RequestException as e:
     print(f"❌ 下载数据失败: {e}")
     exit(1)
@@ -27,16 +27,23 @@ lines = data.split("\n")
 country_dict = defaultdict(list)
 
 for i, line in enumerate(lines):
-    parts = line.strip().split("\t")  # 按 Tab 分割
-    if len(parts) == 3:
-        ip, port, country = parts
+    line = line.strip()
+    
+    # **先检查数据格式**
+    if "#" not in line or ":" not in line:
+        print(f"⚠️ 第 {i+1} 行解析失败（格式不符）：{line}")
+        continue
+    
+    try:
+        ip_port, country = line.rsplit("#", 1)  # 以 `#` 分割
+        ip, port = ip_port.split(":", 1)  # 以 `:` 分割 IP 和端口
         formatted_line = f"{ip}:{port}#{country}"
         country_dict[country].append(formatted_line)
-    else:
-        print(f"⚠️ 第 {i+1} 行解析失败：{line}")  # 打印无法解析的行
+    except ValueError:
+        print(f"⚠️ 第 {i+1} 行解析失败（无法拆分）：{line}")
 
 # **打印解析出的国家 IP 数据**
-print(f"🌍 解析出的国家数据（完整）：{dict(country_dict)}")
+print(f"🌍 解析出的国家数据（前 5 个）：{dict(list(country_dict.items())[:5])}")
 
 # **🎯 每个国家随机选 N 个 IP**
 N = 5
