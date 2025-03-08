@@ -5,7 +5,11 @@ from github import Github
 from collections import defaultdict
 
 # **🔗 目标数据 URL**
-URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
+URL = os.getenv("MY_PROXY_URL")
+
+if not URL:
+    print("❌ Error: MY_PROXY_URL 未设置")
+    exit(1)
 
 # **📥 下载数据**
 try:
