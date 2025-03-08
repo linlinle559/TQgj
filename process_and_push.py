@@ -5,7 +5,7 @@ from github import Github
 from collections import defaultdict
 
 # **🔗 目标数据 URL**
-URL = "https://jlips.jzhou.dns.navy/proxyip%20.txt?token=JLiptq"
+URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
 
 # **📥 下载数据**
 response = requests.get(URL)
