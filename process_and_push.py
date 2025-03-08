@@ -11,7 +11,7 @@ URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"  # 确保 URL 正�
 try:
     response = requests.get(URL, timeout=10)
     response.raise_for_status()
-    print(f"📥 下载的数据内容:\n{response.text[:200]}...")  # 只打印前200个字符，防止太长
+    print(f"📥 下载的数据内容（完整）：\n{response.text}")  # **打印完整数据**
 except requests.exceptions.RequestException as e:
     print(f"❌ 下载数据失败: {e}")
     exit(1)
@@ -32,7 +32,7 @@ for line in lines:
         country_dict[country].append(formatted_line)
 
 # **打印解析出的国家 IP 数据**
-print(f"🌍 解析出的国家数据: {dict(country_dict)}")
+print(f"🌍 解析出的国家数据（完整）：{dict(country_dict)}")
 
 # **🎯 每个国家随机选 N 个 IP**
 N = 5
