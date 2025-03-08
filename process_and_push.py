@@ -5,16 +5,23 @@ from github import Github
 from collections import defaultdict
 
 # **🔗 目标数据 URL**
-URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
+URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"  # 检查 URL 里的 %20 是否正确
 
 # **📥 下载数据**
-response = requests.get(URL)
-if response.status_code != 200:
-    print(f"❌ 无法下载数据，状态码: {response.status_code}")
+try:
+    response = requests.get(URL, timeout=10)
+    response.raise_for_status()
+    print(f"📥 下载的数据内容:\n{response.text[:10000]}...")  # 只打印前200个字符，防止太长
+except requests.exceptions.RequestException as e:
+    print(f"❌ 下载数据失败: {e}")
     exit(1)
 
 # **📌 解析数据**
 lines = response.text.strip().split("\n")
+if not lines or lines == [""]:  # 如果数据为空
+    print("⚠️ 下载的数据为空，检查 URL 是否正确")
+    exit(1)
+
 country_dict = defaultdict(list)
 
 for line in lines:
@@ -30,6 +37,11 @@ output_lines = []
 for country, ip_list in country_dict.items():
     selected_ips = random.sample(ip_list, min(N, len(ip_list)))
     output_lines.extend(selected_ips)
+
+# **⚠️ 检查 output_lines 是否为空**
+if not output_lines:
+    print("⚠️ 解析结果为空，不执行 GitHub 更新")
+    exit(1)
 
 # **📂 保存到本地**
 output_file = "yxym.txt"
@@ -47,15 +59,20 @@ if not GITHUB_TOKEN:
 REPO_NAME = "jzhou9096/jilianip"
 FILE_PATH = "yxym.txt"
 
-g = Github(GITHUB_TOKEN)
-repo = g.get_repo(REPO_NAME)
-
-# **🚀 推送到 GitHub**
 try:
-    file = repo.get_contents(FILE_PATH)  # 先尝试获取文件
-    repo.update_file(FILE_PATH, "🔄 更新 IP", "\n".join(output_lines), file.sha)
-    print("✅ GitHub 文件已更新")
+    g = Github(GITHUB_TOKEN)
+    repo = g.get_repo(REPO_NAME)
+
+    # **🚀 推送到 GitHub**
+    try:
+        file = repo.get_contents(FILE_PATH)  # 先尝试获取文件
+        repo.update_file(FILE_PATH, "🔄 更新 IP", "\n".join(output_lines), file.sha)
+        print("✅ GitHub 文件已更新")
+    except Exception:
+        print("⚠️ 文件不存在，尝试创建新文件")
+        repo.create_file(FILE_PATH, "🆕 初次上传 IP", "\n".join(output_lines))
+        print("✅ GitHub 文件已创建")
+
 except Exception as e:
-    print("⚠️ 文件不存在，尝试创建新文件")
-    repo.create_file(FILE_PATH, "🆕 初次上传 IP", "\n".join(output_lines))
-    print("✅ GitHub 文件已创建")
+    print(f"❌ GitHub 操作失败: {e}")
+    exit(1)
