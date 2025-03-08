@@ -4,8 +4,12 @@ import requests
 from github import Github
 from collections import defaultdict
 
-# **🔗 目标数据 URL**
-URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
+# **🔗 读取 GitHub Secret 变量**
+URL = os.getenv("MY_PROXY_URL")
+
+if not URL:
+    print("❌ Error: MY_PROXY_URL 未设置")
+    exit(1)
 
 # **📥 下载数据**
 try:
@@ -29,14 +33,14 @@ country_dict = defaultdict(list)
 for i, line in enumerate(lines):
     line = line.strip()
     
-    # **先检查数据格式**
+    # **检查数据格式**
     if "#" not in line or ":" not in line:
         print(f"⚠️ 第 {i+1} 行解析失败（格式不符）：{line}")
         continue
     
     try:
-        ip_port, country = line.rsplit("#", 1)  # 以 # 分割
-        ip, port = ip_port.split(":", 1)  # 以 : 分割 IP 和端口
+        ip_port, country = line.rsplit("#", 1)  # 以 `#` 分割
+        ip, port = ip_port.split(":", 1)  # 以 `:` 分割 IP 和端口
         formatted_line = f"{ip}:{port}#{country}"
         country_dict[country].append(formatted_line)
     except ValueError:
