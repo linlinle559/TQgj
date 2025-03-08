@@ -5,11 +5,7 @@ from github import Github
 from collections import defaultdict
 
 # **🔗 目标数据 URL**
-URL = os.getenv("MY_PROXY_URL")
-
-if not URL:
-    print("❌ Error: MY_PROXY_URL 未设置")
-    exit(1)
+URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
 
 # **📥 下载数据**
 try:
@@ -39,8 +35,8 @@ for i, line in enumerate(lines):
         continue
     
     try:
-        ip_port, country = line.rsplit("#", 1)  # 以 `#` 分割
-        ip, port = ip_port.split(":", 1)  # 以 `:` 分割 IP 和端口
+        ip_port, country = line.rsplit("#", 1)  # 以 # 分割
+        ip, port = ip_port.split(":", 1)  # 以 : 分割 IP 和端口
         formatted_line = f"{ip}:{port}#{country}"
         country_dict[country].append(formatted_line)
     except ValueError:
