@@ -7,11 +7,15 @@ from collections import defaultdict
 # **🔗 目标数据 URL**
 URL = "https://jlips.jzhou.dns.navy/proxyip.txt?token=JLiptq"
 
-# **📥 下载数据**
-response = requests.get(URL)
-if response.status_code != 200:
-    print(f"❌ 无法下载数据，状态码: {response.status_code}")
-    exit(1)
+def fetch_webpage_content(url):
+    import requests
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.text
+    except requests.RequestException as e:
+        print(f"Error fetching webpage: {e}")
+        return None
 
 # **📌 解析数据**
 lines = response.text.strip().split("\n")
