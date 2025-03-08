@@ -1,0 +1,27 @@
+name: 📡 自动更新 IP
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # 每 6 小时运行一次
+  workflow_dispatch:  # 允许手动运行
+
+jobs:
+  update-ip:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 🛠️ 检出仓库
+      uses: actions/checkout@v4
+
+    - name: 🔧 设置 Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - name: 📦 安装依赖
+      run: pip install PyGithub requests
+
+    - name: 🚀 运行 Python 脚本
+      run: python process_and_push.py
+      env:
+        MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
