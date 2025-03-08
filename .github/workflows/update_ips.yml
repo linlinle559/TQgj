@@ -31,4 +31,4 @@ jobs:
       run: python process_and_push.py
       env:
         MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
-        MY_PROXY_URL: ${{ secrets.MY_PROXY_URL }}
+
